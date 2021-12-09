@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useTable, useFilters } from 'react-table';
+import React, { useState, useMemo } from 'react';
+import { useTable, useFilters, useGlobalFilter } from 'react-table';
 import { CheckboxFilter } from './filters/column/CheckboxFilter';
 import { SubstringFilter } from './filters/column/SubstringFilter';
+import { FormControlLabel, Checkbox } from '@mui/material';
+import GlobalFilter from './filters/global/GlobalFilter';
+
 //import { matchSorter } from 'match-sorter';
 
 const Table = () => {
+
+    const [useColumnFilters, setUseColumnFilters] = useState(true);
+    const [useGlobalFilters, setuseGlobalFilters] = useState(true);
 
     const data = useMemo(
         () => [
@@ -42,28 +48,25 @@ const Table = () => {
             {
                 Header: 'First name',
                 accessor: 'fname',
-                Filter: SubstringFilter,
-                filterMethod: 'includes'
-
+                Filter: useColumnFilters ? SubstringFilter : null,
             },
             {
                 Header: 'Last name',
                 accessor: 'lname',
-                Filter: SubstringFilter,
-                filterMethod: 'includes'
+                Filter: useColumnFilters ? SubstringFilter : null,
             },
             {
                 Header: 'Member',
                 accessor: 'member',
                 Cell: ({value}) => (value ? "Yes" : "No"),
-                Filter: CheckboxFilter,
+                Filter: useColumnFilters ? CheckboxFilter : null,
                 filterMethod: 'equals',
             }
         ],
-        []
+        [useColumnFilters]
     );
 
-    const tableInstance = useTable({ columns, data }, useFilters);
+    const tableInstance = useTable({ columns, data }, useGlobalFilter, useFilters);
     
     const {
         getTableProps,
@@ -71,14 +74,49 @@ const Table = () => {
         headerGroups,
         rows,
         prepareRow,
+        state,
+        setGlobalFilter,
     } = tableInstance;
+
+    const { globalFilter } = state;
 
     return (
         <div>
             <h2>test</h2>
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        defaultChecked
+                        value={useColumnFilters}
+                        onChange={(e) => {
+                            setUseColumnFilters(!useColumnFilters);
+                        }}
+                    />
+                }
+                label="Use column filters"
+            />
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        defaultChecked
+                        value={useGlobalFilters}
+                        onChange={(e) => {
+                            setUseColumnFilters(!useGlobalFilters);
+                        }}
+                    />
+                }
+                label="Use column filters"
+            />
+            <br />
+            {useGlobalFilters &&
+                <GlobalFilter
+                    filter={globalFilter}
+                    setFilter={setGlobalFilter}
+                />            
+            }
             <table {...getTableProps()}  >
                 <thead>
-                    {/* display the headers */}
+                    {/* display the headers and their column filters*/}
                     {headerGroups.map(headerGroup => {
                         return(
                             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -86,25 +124,11 @@ const Table = () => {
                                     return(
                                         <th {...column.getHeaderProps()}>
                                             {column.render('Header')}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                    {/* display their column filters */}
-                    {headerGroups.map(headerGroup => {
-                        return(
-                            <tr {...headerGroup.getHeaderGroupProps()}>
-                                {headerGroup.headers.map(column => {
-                                    return(
-                                        <th {...column.getHeaderProps()}>
                                             <div>
                                                 {column.Filter &&
                                                     column.render('Filter')
                                                 }
                                             </div>
-                                            
                                         </th>
                                     )
                                 })}
@@ -129,7 +153,6 @@ const Table = () => {
                             </tr>
                         )
                     })}
-
                 </tbody>
             </table>
         </div>

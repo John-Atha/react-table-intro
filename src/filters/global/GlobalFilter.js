@@ -1,14 +1,19 @@
 import React from 'react';
 import { TextField } from '@mui/material';
+import '../../App.css'
 
-export function SubstringFilter({ column: { filter, setFilter } }) {
+function GlobalFilter({ filter, setFilter }) {
 
     return (
         <TextField
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             id="standard-basic"
-            label="Search"
-            variant="standard" />
-    )
+            label="Global Filter"
+            variant="standard"
+            margin='normal'
+        />
+    );
 }
+
+export default GlobalFilter;
