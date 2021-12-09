@@ -1,34 +1,37 @@
-import React, { useMemo } from 'react';
-import { useTable } from 'react-table';
-
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTable, useFilters } from 'react-table';
+import { CheckboxFilter } from './filters/column/CheckboxFilter';
+import { SubstringFilter } from './filters/column/SubstringFilter';
+//import { matchSorter } from 'match-sorter';
 
 const Table = () => {
 
     const data = useMemo(
         () => [
             {
-                col1: "Hello",
-                col2: "World",
+                fname: "John",
+                lname: "Atha",
+                member: true,
             },
             {
-                col1: 'react-table',
-                col2: 'rocks',
+                fname: "George",
+                lname: "Athana",
+                member: true,
             },
             {
-                col1: 'whatever',
-                col2: 'you want',
+                fname: "Thal",
+                lname: "Athana",
+                member: false,
             },
             {
-                col1: 'test',
-                col2: 'one',
+                fname: "Dor",
+                lname: "Spil",
+                member: false,
             },
             {
-                col1: 'test',
-                col2: 'two',
-            },
-            {
-                col1: 'test',
-                col2: 'three',
+                fname: "Thal",
+                lname: "Spil",
+                member: true,
             },
         ],
         []
@@ -37,18 +40,30 @@ const Table = () => {
     const columns = useMemo(
         () => [
             {
-                Header: 'Column1',
-                accessor: 'col1',
+                Header: 'First name',
+                accessor: 'fname',
+                Filter: SubstringFilter,
+                filterMethod: 'includes'
+
             },
             {
-                Header: 'Column2',
-                accessor: 'col2',
+                Header: 'Last name',
+                accessor: 'lname',
+                Filter: SubstringFilter,
+                filterMethod: 'includes'
             },
+            {
+                Header: 'Member',
+                accessor: 'member',
+                Cell: ({value}) => (value ? "Yes" : "No"),
+                Filter: CheckboxFilter,
+                filterMethod: 'equals',
+            }
         ],
         []
     );
-    
-    const tableInstance = useTable({ columns, data });
+
+    const tableInstance = useTable({ columns, data }, useFilters);
     
     const {
         getTableProps,
@@ -63,6 +78,7 @@ const Table = () => {
             <h2>test</h2>
             <table {...getTableProps()}  >
                 <thead>
+                    {/* display the headers */}
                     {headerGroups.map(headerGroup => {
                         return(
                             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -76,8 +92,28 @@ const Table = () => {
                             </tr>
                         )
                     })}
+                    {/* display their column filters */}
+                    {headerGroups.map(headerGroup => {
+                        return(
+                            <tr {...headerGroup.getHeaderGroupProps()}>
+                                {headerGroup.headers.map(column => {
+                                    return(
+                                        <th {...column.getHeaderProps()}>
+                                            <div>
+                                                {column.Filter &&
+                                                    column.render('Filter')
+                                                }
+                                            </div>
+                                            
+                                        </th>
+                                    )
+                                })}
+                            </tr>
+                        )
+                    })}
                 </thead>
                 <tbody {...getTableBodyProps()}>
+                    {/* display the rows */}
                     {rows.map(row => {
                         prepareRow(row);
                         return(
