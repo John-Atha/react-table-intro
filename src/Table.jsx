@@ -10,7 +10,7 @@ import GlobalFilter from './filters/global/GlobalFilter';
 const Table = () => {
 
     const [useColumnFilters, setUseColumnFilters] = useState(true);
-    const [useGlobalFilters, setuseGlobalFilters] = useState(true);
+    const [useGlobalFilters, setUseGlobalFilters] = useState(true);
 
     const data = useMemo(
         () => [
@@ -101,11 +101,11 @@ const Table = () => {
                         defaultChecked
                         value={useGlobalFilters}
                         onChange={(e) => {
-                            setUseColumnFilters(!useGlobalFilters);
+                            setUseGlobalFilters(!useGlobalFilters);
                         }}
                     />
                 }
-                label="Use column filters"
+                label="Use global filters"
             />
             <br />
             {useGlobalFilters &&
